@@ -1,0 +1,10 @@
+---
+title: "LabVenture"
+author: "cslovas"
+format: 
+  html:
+    toc: true
+    self-contained: true
+editor: source
+---
+
