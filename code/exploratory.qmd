@@ -25,7 +25,8 @@ normal_visit <- read_csv(here("data", "normal_visit.csv"))
 ```
 
 # Exploring data of normal visits
-We'll start with some visual comparisons of demographics; grade, number of chaperones, number of hands raised for questions 1-3, and number of shortened session. 
+
+We'll start with some visual comparisons of demographics; grade, number of chaperones, number of hands raised for questions 1-3, and number of shortened session.
 
 ```{r}
 #| label: grades
@@ -33,7 +34,7 @@ We'll start with some visual comparisons of demographics; grade, number of chape
 #| message: false
 #| warning: false
 #| fig-align: center
-# fig-width: 7
+#| fig-width: 7
 #| fig-height: 5
 
 theme_set(theme_gmri() + theme(title=element_text(family="Avenir heavy")))
@@ -71,7 +72,7 @@ ggdonutchart(x, "count", fill = "grade", label = "grade", color = "#FFFFFF",
 #| message: false
 #| warning: false
 #| fig-align: center
-# fig-width: 7
+#| fig-width: 7
 #| fig-height: 5
 
 normal_visit %>% 
@@ -87,4 +88,95 @@ normal_visit %>%
              plot.title = element_text(face = "bold", family = "Avenir heavy"))
 ```
 
+## Responses to verbal questions
 
+How many students raised their hands in response to being asked questions by LabVenture educators?
+
+#### Questions
+
+-   **Plankton**: What did you notice about plankton?
+-   **BSB**: Should we be concerned about black sea bass?
+-   **GoM**: What is happening to the Gulf of Maine?
+
+```{r}
+#| label: hand-raising
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-align: center
+#| fig-width: 7
+#| fig-height: 5
+
+normal_visit %>% 
+  select(organizations, `scheduled day`, plankton_1, `bsb-1`, `gom-1`) %>% 
+  rename("BSB" = "bsb-1",
+         "Plankton" = "plankton_1",
+         "GoM" = "gom-1") %>%
+  pivot_longer(cols = c(Plankton, BSB, GoM), names_to = "question") %>% 
+  drop_na() %>%
+  ggplot() +
+  geom_bar(aes(x = value, group = question, fill = question), position = "dodge") +
+  ylab("Total response") + xlab("No. of raised hands") +
+  guides(fill = guide_legend(title = "Question")) +
+  scale_fill_gmri()
+
+```
+
+## Responses to clicker questions
+
+What were students recalling as important information when asked *what is happening in the Gulf of Maine*?
+
+#### Multiple selection options
+
+1.  Climate change
+
+2.  Water warming
+
+3.  Black sea bass (bsb) moving north
+
+4.  Lobster moving north
+
+5.  Black sea bass eating lobster
+
+6.  Black sea bass eating other species
+
+7.  Black sea bass eating lobster bait
+
+8.  Black sea bass changing lobster behavior
+
+9.  Other
+
+```{r}
+#| label: clicker
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-align: center
+#| fig-width: 7
+#| fig-height: 5
+
+normal_visit %>%
+  select(`gom-2`) %>% 
+  separate_wider_delim(`gom-2`, delim = ",", names = c("a","b","c","d","e"),
+                       too_few = "debug") %>% 
+  pivot_longer(cols = a:e, names_to = "cat", values_to = "responses") %>% 
+  select(responses) %>% 
+  filter(!is.na(responses)) %>% 
+  mutate(responses = str_remove(responses, pattern = "\\["),
+         responses = str_remove(responses, pattern = "\\]"),
+         responses = str_remove(responses, pattern = "'"),
+         responses = str_remove(responses, pattern = "'"),
+         responses = str_replace(responses, "-", " "),
+         responses = str_replace(responses, "-", " "),
+         responses = str_replace(responses, "-", " "),
+         responses = str_to_sentence(responses)) %>% 
+  unique()
+         count = 1) %>% 
+  filter(!responses == "") %>%
+  group_by(responses) %>%
+  summarise(count = sum(count)) %>% 
+  arrange(count) %>% 
+  ggplot() +
+  geom_col(aes(x = responses, y = count, fill = responses))
+
+```
