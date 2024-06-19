@@ -1,0 +1,6 @@
+project:
+  title: "LabVenture"
+editor: visual
+format: 
+  html:
+    self-contained: true 
