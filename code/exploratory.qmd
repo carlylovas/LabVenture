@@ -8,3 +8,83 @@ format:
 editor: source
 ---
 
+```{r}
+#| label: load data and dependencies
+#| echo: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(gmRi)
+library(here)
+library(gt)
+library(ggpubr)
+
+normal_visit <- read_csv(here("data", "normal_visit.csv"))
+
+```
+
+# Exploring data of normal visits
+We'll start with some visual comparisons of demographics; grade, number of chaperones, number of hands raised for questions 1-3, and number of shortened session. 
+
+```{r}
+#| label: grades
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-align: center
+# fig-width: 7
+#| fig-height: 5
+
+theme_set(theme_gmri() + theme(title=element_text(family="Avenir heavy")))
+
+normal_visit %>% 
+  select(organizations) %>% 
+  distinct() %>% 
+  gt(groupname_col = NULL) %>% 
+  cols_label(organizations = md("**Participating schools**")) 
+
+normal_visit %>% 
+  mutate(count = 1) %>% 
+  group_by(grade) %>% 
+  summarise(count = sum(count)) %>% 
+  drop_na() -> x 
+
+ggdonutchart(x, "count", fill = "grade", label = "grade", color = "#FFFFFF",
+             lab.font = c(7, "bold", "white"), lab.pos = "in", font.family = "avenir") +
+    scale_fill_manual(values = c("#00608A", "#ABB400", "#EA4F12")) +
+    theme(legend.position="none",
+          legend.title = element_blank(),
+          panel.background = element_blank(),
+          legend.text = element_text(size =30),
+          plot.margin = margin(-1,-1,-1,-1, "cm")) +
+  annotate("text", label = paste("Participating", "grades", sep = "\n"), family = "Avenir heavy", x = .5, y= 0, size = 8)
+
+
+ 
+
+```
+
+```{r}
+#| label: chaperones
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-align: center
+# fig-width: 7
+#| fig-height: 5
+
+normal_visit %>% 
+  select(chaperones) %>% 
+  ggplot() + 
+  geom_bar(aes(x = chaperones, fill = chaperones)) +
+  scale_fill_gmri() +
+  ggtitle("Chaperones present per group") +
+  xlab("Range") + ylab("No. of groups") + 
+  theme_gmri(legend.position = "none",
+             axis.title = element_text(face = "bold", family = "Avenir"),
+             axis.text = element_text(family = "Avenir"),
+             plot.title = element_text(face = "bold", family = "Avenir heavy"))
+```
+
+
