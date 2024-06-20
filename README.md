@@ -6,7 +6,7 @@ Welcome to my GitHub! All of the visualizations and summaries of the LabVentures
 
 #### 📈 Data
 
-All the [data and code](https://github.com/carlylovas/LabVenture?tab=readme-ov-file)will live in folders named data and code (original, I know). It's here for reproducibility but also as a reference for when you want a deeper understanding of what I'm doing with the data.
+All the [data and code](https://github.com/carlylovas/LabVenture?tab=readme-ov-file) will live in folders named data and code (original, I know). It's here for reproducibility but also as a reference for when you want a deeper understanding of what I'm doing with the data.
 
 #### 📖 Summaries
 
