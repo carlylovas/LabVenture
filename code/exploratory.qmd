@@ -1,6 +1,6 @@
 ---
 title: "LabVenture"
-author: "cslovas"
+author: "carly s. lovas"
 format: 
   html:
     toc: true
@@ -29,13 +29,13 @@ normal_visit <- read_csv(here("data", "normal_visit.csv"))
 We'll start with some visual comparisons of demographics; grade, number of chaperones, number of hands raised for questions 1-3, and number of shortened session.
 
 ```{r}
-#| label: grades
+#| label: schools
 #| echo: false
 #| message: false
 #| warning: false
 #| fig-align: center
-#| fig-width: 7
 #| fig-height: 5
+
 
 theme_set(theme_gmri() + theme(title=element_text(family="Avenir heavy")))
 
@@ -45,6 +45,18 @@ normal_visit %>%
   gt(groupname_col = NULL) %>% 
   cols_label(organizations = md("**Participating schools**")) 
 
+```
+
+```{r}
+#| label: demographics
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-align: center
+#| fig-width: 14
+#| fig-height: 10
+#| layout-ncol: 2
+
 normal_visit %>% 
   mutate(count = 1) %>% 
   group_by(grade) %>% 
@@ -52,28 +64,14 @@ normal_visit %>%
   drop_na() -> x 
 
 ggdonutchart(x, "count", fill = "grade", label = "grade", color = "#FFFFFF",
-             lab.font = c(7, "bold", "white"), lab.pos = "in", font.family = "avenir") +
+             lab.font = c(18, "bold", "white"), lab.pos = "in", font.family = "avenir") +
     scale_fill_manual(values = c("#00608A", "#ABB400", "#EA4F12")) +
     theme(legend.position="none",
           legend.title = element_blank(),
           panel.background = element_blank(),
           legend.text = element_text(size =30),
           plot.margin = margin(-1,-1,-1,-1, "cm")) +
-  annotate("text", label = paste("Participating", "grades", sep = "\n"), family = "Avenir heavy", x = .5, y= 0, size = 8)
-
-
- 
-
-```
-
-```{r}
-#| label: chaperones
-#| echo: false
-#| message: false
-#| warning: false
-#| fig-align: center
-#| fig-width: 7
-#| fig-height: 5
+  annotate("text", label = paste("Participating", "grades", sep = "\n"), family = "Avenir heavy", x = .5, y= 0, size = 18)
 
 normal_visit %>% 
   select(chaperones) %>% 
@@ -83,9 +81,11 @@ normal_visit %>%
   ggtitle("Chaperones present per group") +
   xlab("Range") + ylab("No. of groups") + 
   theme_gmri(legend.position = "none",
-             axis.title = element_text(face = "bold", family = "Avenir"),
-             axis.text = element_text(family = "Avenir"),
-             plot.title = element_text(face = "bold", family = "Avenir heavy"))
+             axis.title = element_text(family = "Avenir heavy", size = 35),
+             axis.text = element_text(family = "Avenir", size = 35),
+             plot.title = element_text(face = "bold", family = "Avenir heavy", size =40))
+
+
 ```
 
 ## Responses to verbal questions
@@ -126,57 +126,66 @@ normal_visit %>%
 
 What were students recalling as important information when asked *what is happening in the Gulf of Maine*?
 
-#### Multiple selection options
-
-1.  Climate change
-
-2.  Water warming
-
-3.  Black sea bass (bsb) moving north
-
-4.  Lobster moving north
-
-5.  Black sea bass eating lobster
-
-6.  Black sea bass eating other species
-
-7.  Black sea bass eating lobster bait
-
-8.  Black sea bass changing lobster behavior
-
-9.  Other
-
 ```{r}
 #| label: clicker
 #| echo: false
 #| message: false
 #| warning: false
 #| fig-align: center
-#| fig-width: 7
-#| fig-height: 5
+#| fig-width: 18
+#| fig-height: 18
+#| layout-ncol: 2
 
+# what is happening?
 normal_visit %>%
   select(`gom-2`) %>% 
-  separate_wider_delim(`gom-2`, delim = ",", names = c("a","b","c","d","e"),
-                       too_few = "debug") %>% 
-  pivot_longer(cols = a:e, names_to = "cat", values_to = "responses") %>% 
-  select(responses) %>% 
-  filter(!is.na(responses)) %>% 
-  mutate(responses = str_remove(responses, pattern = "\\["),
-         responses = str_remove(responses, pattern = "\\]"),
-         responses = str_remove(responses, pattern = "'"),
-         responses = str_remove(responses, pattern = "'"),
-         responses = str_replace(responses, "-", " "),
-         responses = str_replace(responses, "-", " "),
-         responses = str_replace(responses, "-", " "),
-         responses = str_to_sentence(responses)) %>% 
-  unique()
-         count = 1) %>% 
-  filter(!responses == "") %>%
-  group_by(responses) %>%
+  separate(`gom-2`, c("a","b", "c", "d", "e"), sep = ", ") %>%
+  pivot_longer(cols = a:e, names_to = "cols", values_to = "gom_2", values_drop_na = TRUE) %>% 
+  ungroup() %>%
+  select(gom_2) %>% 
+  mutate(gom_2 = str_replace(gom_2, "other", "Other"),
+         gom_2 = str_replace(gom_2, "water-warming", "Warming water"),
+         gom_2 = str_replace(gom_2, "climate-change", "Climate change"),
+         gom_2 = str_replace(gom_2, "bsb-eating-lobster-bait", "Black sea bass eating bait"), 
+         gom_2 = str_replace(gom_2, "bsb-moving-north", "Black sea bass moving north"),
+         gom_2 = str_replace(gom_2, "lobster-moving-north", "Lobster moving north"),
+         gom_2 = str_replace(gom_2, "bsb-eating-Other-species", "Black sea bass eating other species")) %>% 
+  mutate(count = 1) %>% 
+  group_by(gom_2) %>%
   summarise(count = sum(count)) %>% 
-  arrange(count) %>% 
   ggplot() +
-  geom_col(aes(x = responses, y = count, fill = responses))
+  geom_col(aes(y = reorder(gom_2, count), x = count, fill = gom_2)) +
+  ggtitle("What is happening?") +
+  scale_fill_gmri() +
+  theme_gmri(legend.position = "none",
+             axis.title = element_blank(),
+             axis.text = element_text(family = "Avenir", size = 45),
+             plot.title = element_text(family = "Avenir heavy", size = 50)) 
+
+# how do we know?
+normal_visit %>%
+  select(`data-1`) %>% 
+  separate(`data-1`, c("a","b", "c", "d", "e"), sep = ", ") %>%
+  pivot_longer(cols = a:e, names_to = "cols", values_to = "data", values_drop_na = TRUE) %>% 
+  mutate(data = str_replace(data, "sst-maps", "SST Maps"),
+         data = str_replace(data, "observations-eg-bsb-found-in-traps", "Observations"),
+         data = str_replace(data, "stomach-content-data-table", "Stomach content data"),
+         data = str_replace(data, "scientific-videos", "Science videos"),
+         data = str_replace(data, "other", "Other"),
+         count = 1) %>% 
+  group_by(data) %>% 
+  summarise(count = sum(count)) %>%
+  ggplot() +
+  geom_col(aes(y = reorder(data, count), x = count, fill = data)) +
+  ggtitle("How do you know?") +
+  scale_fill_gmri() +
+  theme_gmri(legend.position = "none",
+             axis.title = element_blank(),
+             axis.text = element_text(family = "Avenir", size = 45),
+             plot.title = element_text(family = "Avenir heavy", size = 50)) 
 
 ```
+## Initial thoughts
+Based on raw numbers, it seems that students are connecting the dots between warming in the Gulf of Maine and fisheries changes. The most frequent hand raising (ranging 1-8) appears to response to the question *what is happening in the Gulf of Maine*. **Species movement**, specifically Black sea bass, is the most referenced change in the Gulf of Maine, citing the **sea surface temperature** activity as how we know that this is happening. The next step is explore how demographics and program order impact response and engagement, as well as students ability to pick out important topics. 
+
+
