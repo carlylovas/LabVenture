@@ -115,10 +115,12 @@ normal_visit %>%
   pivot_longer(cols = c(Plankton, BSB, GoM), names_to = "question") %>% 
   drop_na() %>%
   ggplot() +
-  geom_bar(aes(x = value, group = question, fill = question), position = "dodge") +
+  geom_bar(aes(x = value, group = factor(question, levels = c("Plankton", "BSB", "GoM")), fill = factor(question, levels = c("Plankton", "BSB", "GoM"))), position = "dodge") +
   ylab("Total response") + xlab("No. of raised hands") +
   guides(fill = guide_legend(title = "Question")) +
   scale_fill_gmri()
+
+# reorder plankton, bsb, gom
 
 ```
 
