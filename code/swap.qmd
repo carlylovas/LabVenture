@@ -97,10 +97,12 @@ means %>% pivot_longer(cols = 2:14, names_to = "question", values_to = "mean_per
   ylim(c(0,100)) +
   scale_fill_gmri() +
   ylab("Percent response") +
-  xlab("What was your favorite part?") +
+  ggtitle("What was your favorite part?") +
   theme_gmri(axis.text = element_text(family = "Avenir", size = 45),
-             axis.title = element_text(family = "Avenir heavy", size = 55),
-             plot.title = element_text(family = "Avenir heavy", size = 50),
+             axis.title.y = element_text(family = "Avenir heavy", size = 55),
+             axis.title.x = element_blank(),
+             plot.title = element_text(family = "Avenir heavy", size = 65),
+             legend.position = "bottom",
              legend.title = element_text(family = "Avenir heavy", size = 50),
              legend.text = element_text(family = "Avenir heavy", size = 50),
              legend.key.spacing = unit(1, "cm")) 
@@ -115,10 +117,12 @@ means %>% pivot_longer(cols = 2:14, names_to = "question", values_to = "mean_per
   ylim(c(0,100)) +
   scale_fill_gmri() +
   ylab("Percent response") +
-  xlab("What was your least favorite part?") +
+  ggtitle("What was your least favorite part?") +
   theme_gmri(axis.text = element_text(family = "Avenir", size = 45),
-             axis.title = element_text(family = "Avenir heavy", size = 55),
-             plot.title = element_text(family = "Avenir heavy", size = 50),
+             axis.title.y = element_text(family = "Avenir heavy", size = 55),
+             axis.title.x = element_blank(),
+             plot.title = element_text(family = "Avenir heavy", size = 65),
+             legend.position = "bottom",
              legend.title = element_text(family = "Avenir heavy", size = 50),
              legend.text = element_text(family = "Avenir heavy", size = 50),
              legend.key.spacing = unit(1, "cm"))
