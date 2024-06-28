@@ -1,5 +1,6 @@
 ---
 title: "LabVenture"
+subtitle: "Normal visit breakdown"
 author: "carly s. lovas"
 format: 
   html:

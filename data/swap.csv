@@ -1,0 +1,19 @@
+School,Date,Swap,otolith,sst,fav_plank,fav_lobsters,fave_dissection,fave_tank,fave_trace,worst_plank,worst_lob,worst_dissection,worst_tank,worst_trace,longer,shorter,same,what,how,why
+Harrison Lyseth,3/21 AM,yes,0,3,0.00,0.84,0.05,0.08,0.03,0.36,0.03,0.10,0.05,0.46,0.29,0.26,0.42,"BSB north, Lob North, Warming water",SST,Ecosystem Collapse
+Harrison Lyseth,3/21 PM,no,5,3,0.03,0.75,0.06,0.13,0.03,0.19,0.06,0.16,0.16,0.42,0.31,0.16,0.50,"Lob North, Warming water",SST,"Food Web, Job Impacts, Other"
+Falmouth,3/22 AM,no,2,1,0.17,0.66,0.03,0.11,0.03,0.29,0.00,0.26,0.03,0.41,0.26,0.12,0.59,"BSB north, Lob North, Warming water","SST, Scientific Videos","Food Web, Job Impacts, Other"
+Falmouth,3/22 PM,yes,2,3,0.03,0.76,0.09,0.04,0.00,0.15,0.00,0.21,0.06,0.58,0.30,0.36,0.30,"BSB north, BSB eating lobsters, BSB eating other species, BSB changing lob behavior, Warming water, Other",SST,"Food Web, Job Impacts, Other"
+Sacopee,3/25 AM,yes,1,2,,,,,,,,,,,,,,,,
+Sacopee,3/28 AM,no,0,0,,,,,,,,,,,,,,,,
+Nobel,4/11 AM,yes,4,1,0.03,0.82,0.00,0.15,0.00,0.16,0.03,0.21,0.09,0.50,0.34,0.29,0.34,"BSB north, Lob North, Warming water",SST,"Food Web, Other"
+Nobel,4/12 AM,no,0,1,,,,,,,,,,,,,,,,
+Massabessic,4/25 AM,no,1,1,0.03,0.79,0.06,0.09,0.03,0.18,0.00,0.21,0.06,0.55,0.40,0.14,0.46,"BSB north, Warming water","Observations, Other","Food Web, Economy Collapse"
+Massabessic,4/25 PM,yes,3,0,0.00,0.72,0.03,0.24,0.00,0.17,0.03,0.34,0.10,0.34,0.36,0.29,0.36,"BSB north, Lob North, Warming water","SST, Observations","Food Web, Job Impacts"
+Scarborough,4/26 AM,no,1,2,0.00,0.80,0.09,0.11,0.00,0.26,0.09,0.23,0.06,0.37,0.31,0.11,0.49,"BSB north, BSB eating lobsters, Warming water",Stomach Content,"Food Web, Other"
+Scarborough,4/26 PM,yes,1,1,0.05,0.83,0.08,0.05,0.00,0.33,0.10,0.08,0.05,0.44,0.11,0.37,0.50,"BSB north, Lob North, BSB eating lobsters, Warming water",Other,"Food Web, Other"
+Ellsworth,4/30 PM,yes,2,1,0.11,0.72,0.08,0.06,0.03,0.19,0.00,0.19,0.08,0.54,0.22,0.16,0.62,"BSB north, Lob North, Warming water",SST,"Food Web, Job Impacts"
+Ellsworth,5/1 AM,no,2,0,0.05,0.50,0.23,0.20,0.03,0.24,0.08,0.16,0.11,0.41,0.37,0.18,0.42,"BSB north, Warming water, Other",SST,"Food Web, Other"
+Massabessic,5/2 AM,yes,1,1,0.05,0.73,0.08,0.08,0.08,0.22,0.07,0.17,0.10,0.44,0.39,0.39,0.20,"BSB north, Lob North, Warming water",Observations,Food Web
+Massabessic,5/2 PM,no,2,0,0.11,0.67,0.11,0.11,0.00,0.04,0.07,0.15,0.04,0.70,0.15,0.44,0.41,"BSB north, Lob North, Warming water",SST,"Food Web, Economy Collapse, Job Impacts"
+Massabessic,5/9 AM,yes,1,1,0.08,0.73,0.15,0.05,0.00,0.15,0.05,0.20,0.17,0.44,0.44,0.22,0.34,"BSB north, Lob North, Warming water","SST, Observations","Economy Collapse, Job Impacts, Other"
+Massabessic,5/9 PM,no,0,1,0.04,0.63,0.15,0.11,0.07,0.29,0.00,0.25,0.13,0.33,0.46,0.27,0.27,"BSB north, Warming water, Other",Other,Food Web

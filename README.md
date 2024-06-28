@@ -13,3 +13,4 @@ All the [data and code](https://github.com/carlylovas/LabVenture?tab=readme-ov-f
 The pretty graphs and discussions of the data will live in the summary docs linked below. They follow my train of thought, starting with the initial exploration of the data we have into some descriptive statistics. This is probably what you're interested in, more so than my incoherent code babble.
 
 1.  [Normal visit breakdown](https://carlylovas.github.io/LabVenture/code/exploratory.html)
+2.  [Activity swap comparison](https://carlylovas.github.io/LabVenture/code/swap.html)

@@ -1,0 +1,231 @@
+---
+title: "LabVenture"
+subtitle: "Swap"
+author: "carly s. lovas"
+format: 
+  html:
+    toc: true
+    self-contained: true
+editor: source
+---
+
+```{r}
+#| label: load data and dependencies
+#| echo: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(gmRi)
+library(here)
+library(broom)
+library(gt)
+library(ggpubr)
+
+swap <- read_csv(here("data", "swap.csv"))
+
+```
+
+## Comparing responses
+Here we examine the difference in students responses when the order of activities within the LabVenture program are swapped.
+
+-   *Normal order*: Lobster, Otolith, Dissection, SST tracing
+-   *Swapped order*: SST tracing, Lobster, Otolith, Dissection 
+
+```{r}
+#| label: clicker means
+#| echo: false
+#| message: false
+#| warning: false
+#| #| fig-align: center
+#| fig-width: 20
+#| fig-height: 20
+#| layout-ncol: 2
+
+swap %>%
+  filter(Swap == "no") %>% 
+  select(Swap, fav_plank, fav_lobsters, fave_dissection, fave_tank, fave_trace,
+         worst_plank, worst_lob, worst_dissection, worst_tank, worst_trace, shorter, longer, same) %>%
+  drop_na() %>% 
+  mutate(fav_plank = mean(fav_plank),
+         fav_lobsters = mean(fav_lobsters),
+         fave_dissection = mean(fave_dissection),
+         fave_tank = mean(fave_tank),
+         fave_trace = mean(fave_trace),
+         worst_plank = mean(worst_plank),
+         worst_lob = mean(worst_lob),
+         worst_dissection = mean(worst_dissection),
+         worst_tank = mean(worst_tank),
+         worst_trace = mean(worst_trace),
+         shorter = mean(shorter),
+         longer = mean(longer),
+         same = mean(same)) %>% 
+  distinct() -> no_swap
+
+
+swap %>%
+  filter(Swap == "yes") %>% 
+  select(Swap,fav_plank, fav_lobsters, fave_dissection, fave_tank, fave_trace,
+         worst_plank, worst_lob, worst_dissection, worst_tank, worst_trace, shorter, longer, same) %>%
+  drop_na() %>% 
+  mutate(fav_plank = mean(fav_plank),
+         fav_lobsters = mean(fav_lobsters),
+         fave_dissection = mean(fave_dissection),
+         fave_tank = mean(fave_tank),
+         fave_trace = mean(fave_trace),
+         worst_plank = mean(worst_plank),
+         worst_lob = mean(worst_lob),
+         worst_dissection = mean(worst_dissection),
+         worst_tank = mean(worst_tank),
+         worst_trace = mean(worst_trace),
+         shorter = mean(shorter),
+         longer = mean(longer),
+         same = mean(same)) %>% 
+  distinct() -> yes_swap
+
+means <- yes_swap %>% full_join(no_swap)
+
+
+labels <- c("Lobster", "Plankton", "Dissection", "Tank", "SST Tracing")
+
+means %>% pivot_longer(cols = 2:14, names_to = "question", values_to = "mean_percent") %>% 
+  mutate(mean_percent = mean_percent*100) %>% 
+  filter(str_starts(question, "fav")) %>%
+  ggplot() +
+  geom_col(aes(x = question, y = mean_percent, fill = Swap), position = "dodge") +
+  scale_x_discrete(labels = labels) +
+  ylim(c(0,100)) +
+  scale_fill_gmri() +
+  ylab("Percent response") +
+  xlab("What was your favorite part?") +
+  theme_gmri(axis.text = element_text(family = "Avenir", size = 45),
+             axis.title = element_text(family = "Avenir heavy", size = 55),
+             plot.title = element_text(family = "Avenir heavy", size = 50),
+             legend.title = element_text(family = "Avenir heavy", size = 50),
+             legend.text = element_text(family = "Avenir heavy", size = 50),
+             legend.key.spacing = unit(1, "cm")) 
+
+means %>% pivot_longer(cols = 2:14, names_to = "question", values_to = "mean_percent") %>% 
+  mutate(mean_percent = mean_percent*100) %>% 
+  filter(str_starts(question, "worst")) %>%
+  ggplot() +
+  geom_col(aes(x = question, y = mean_percent, fill = Swap), position = "dodge") +
+  scale_x_discrete(labels = labels) +
+  guides(shape = guide_legend(override.aes = list(size = 20))) +
+  ylim(c(0,100)) +
+  scale_fill_gmri() +
+  ylab("Percent response") +
+  xlab("What was your least favorite part?") +
+  theme_gmri(axis.text = element_text(family = "Avenir", size = 45),
+             axis.title = element_text(family = "Avenir heavy", size = 55),
+             plot.title = element_text(family = "Avenir heavy", size = 50),
+             legend.title = element_text(family = "Avenir heavy", size = 50),
+             legend.text = element_text(family = "Avenir heavy", size = 50),
+             legend.key.spacing = unit(1, "cm"))
+
+# plot this (two plots; favortie and least favorite)
+
+```
+Though there are apparent differences in favored activities when the order of activies is swapped, there is no statistically significant difference. To assess this difference, I ran a Welch's t.test to compare the difference in the average percentage of students ranking each activities. The results of the significance testing are in the table below.
+ 
+```{r}
+#| label: t-testing clicker
+#| echo: false
+#| warning: false
+#| message: false
+
+swap %>% 
+  select(!c(sst, otolith, what, how, why)) %>% 
+  pivot_longer(cols = 4:16, names_to = "response", values_to = "percent") %>% 
+  group_by(response) %>% 
+  nest() %>% 
+  mutate(t.test = map(data, function(x){
+    t.test(percent ~ Swap, data = x) %>% 
+      tidy() %>%
+      select( 
+        no_swap = estimate1,
+        swap = estimate2,
+        method,
+        p.value) %>%
+      mutate(different = ifelse(p.value <= 0.05, "True","False"))
+  })) -> swap_t_test
+
+
+swap_t_test %>% 
+  select(response, t.test) %>% 
+  unnest(t.test) %>% 
+  gt(groupname_col = NULL) %>% 
+  cols_label(response = md("**Response options**"),
+             no_swap  = md("**Normal program**"),
+             swap = md("**Swap**"),
+             method = md("**Method**"),
+             p.value = md("**P.Value**"),
+             different = md("**Significant**")) # no significant difference
+
+```
+
+
+```{r}
+#| label: t-testing worksheets
+#| echo: false
+#| warning: false
+#| message: false
+
+swap %>% 
+  select(Swap, otolith, sst) %>% 
+  pivot_longer(cols = 2:3, names_to = "worksheet", values_to = "number_incomplete") %>% 
+  group_by(worksheet) %>% 
+  nest() %>%
+  mutate(t.test = map(data, function(x){
+    t.test(number_incomplete ~ Swap, data = x) %>% 
+      tidy() %>%
+      select( 
+        no_swap = estimate1,
+        swap = estimate2,
+        method,
+        p.value) %>%
+      mutate(different = ifelse(p.value <= 0.05, T,F))
+  })) -> worksheets
+
+```
+
+```{r}
+#| label: comparing multichoice questions
+#| echo: false
+#| warning: false
+#| message: false
+
+# What is happening?
+swap %>% 
+  select("School", "Date", "Swap", "what") %>% 
+  separate(what, c("a","b", "c", "d", "e", "f"), sep = ", ") %>%
+  pivot_longer(cols = a:f, names_to = "cols", values_to = "what", values_drop_na = TRUE) %>% 
+  select(!cols) %>% 
+  mutate(responses = 1) %>% 
+  group_by(Swap, what) %>% 
+  summarise(total_responses = sum(responses)) -> what
+
+# How do we know/what data supports this?
+swap %>% 
+  select("School", "Date", "Swap", "how") %>% 
+  separate(how, c("a","b", "c", "d", "e", "f"), sep = ", ") %>%
+  pivot_longer(cols = a:f, names_to = "cols", values_to = "how", values_drop_na = TRUE) %>% 
+  select(!cols) %>%
+  mutate(responses = 1) %>% 
+  group_by(Swap, how) %>% 
+  summarise(total_responses = sum(responses)) -> how
+
+# Why does it matter?
+swap %>% 
+  select("School", "Date", "Swap", "why") %>% 
+  separate(why, c("a","b", "c", "d", "e", "f"), sep = ", ") %>%
+  pivot_longer(cols = a:f, names_to = "cols", values_to = "why", values_drop_na = TRUE) %>% 
+  select(!cols) %>%
+  mutate(responses = 1) %>% 
+  group_by(Swap, why) %>% 
+  summarise(total_responses = sum(responses))-> why
+
+
+```
+
+My next step is to assess if there are any differences in the multichoice responses, though my inital thoughts are that these will follow the same pattern as the clicker questions. 
