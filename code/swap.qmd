@@ -37,7 +37,7 @@ Here we examine the difference in students responses when the order of activitie
 #| echo: false
 #| message: false
 #| warning: false
-#| #| fig-align: center
+#| fig-align: center
 #| fig-width: 20
 #| fig-height: 20
 #| layout-ncol: 2
@@ -167,7 +167,7 @@ swap_t_test %>%
              different = md("**Significant**")) # no significant difference
 
 ```
-
+I ran the same statistical test on the average number of otolith/sst worksheets that were blank or covered in scribbles. Like the previous analysis, the change in activity order doesn't seem to significantly impact engagement.
 
 ```{r}
 #| label: t-testing worksheets
@@ -191,45 +191,171 @@ swap %>%
       mutate(different = ifelse(p.value <= 0.05, T,F))
   })) -> worksheets
 
+worksheets %>% 
+  select(worksheet, t.test) %>% 
+  unnest(t.test) %>% 
+  gt(groupname_col = NULL) %>% 
+  cols_label(worksheet = md("**Worksheet**"),
+             no_swap  = md("**Normal program**"),
+             swap = md("**Swap**"),
+             method = md("**Method**"),
+             p.value = md("**P.Value**"),
+             different = md("**Significant**"))
+
 ```
+My next step is to assess if there are any differences in the multichoice responses, though my initial thoughts are that these will follow the same pattern as the clicker questions. 
+
+
 
 ```{r}
 #| label: comparing multichoice questions
 #| echo: false
 #| warning: false
 #| message: false
+#| fig-align: center
+#| fig-width: 30
+#| fig-height: 30
+#| layout-ncol: 2
 
 # What is happening?
 swap %>% 
   select("School", "Date", "Swap", "what") %>% 
   separate(what, c("a","b", "c", "d", "e", "f"), sep = ", ") %>%
   pivot_longer(cols = a:f, names_to = "cols", values_to = "what", values_drop_na = TRUE) %>% 
-  select(!cols) %>% 
-  mutate(responses = 1) %>% 
-  group_by(Swap, what) %>% 
-  summarise(total_responses = sum(responses)) -> what
+  select(!cols) -> what
 
-# How do we know/what data supports this?
+what_values <- what %>% 
+  ungroup() %>%
+  select(what) %>% 
+  distinct() %>% 
+  nest() %>% 
+  cbind(what %>% select(School, Date) %>% distinct()) %>% 
+  unnest(data)
+
+what_values %>% 
+  left_join(what) %>% 
+  mutate(response = ifelse(is.na(Swap), 0, 1)) %>% 
+  select(Date, School, what, response) %>% 
+  group_by(Date, School) %>% 
+  nest() %>% 
+  left_join(what %>% select(Date, School, Swap) %>% distinct()) %>% 
+  unnest(data) -> what 
+
+what %>% 
+  group_by(what, Swap) %>%
+  summarise(response = sum(response)) %>% 
+  group_by(Swap) %>%
+  mutate(total_responses = sum(response),
+         percent = (response/total_responses)*100) %>%
+  ggplot() +
+  geom_col(aes(y = reorder(what, percent), x = percent, fill = Swap), position = "dodge") +
+  ggtitle("What is happening?") + xlab("Percent response") +
+  scale_fill_gmri() +
+  xlim(c(0,100)) +
+  theme_gmri(axis.text = element_text(family = "Avenir", size = 70),
+             axis.title.y = element_blank(),
+             axis.title.x = element_text(family = "Avenir heavy", size = 75),
+             plot.title = element_text(family = "Avenir heavy", size = 75),
+             legend.position = "top",
+             legend.title = element_text(family = "Avenir", size = 70),
+             legend.text = element_text(family = "Avenir", size = 70),
+             legend.key.spacing = unit(1, "cm"))
+
+# How do we know?
 swap %>% 
   select("School", "Date", "Swap", "how") %>% 
   separate(how, c("a","b", "c", "d", "e", "f"), sep = ", ") %>%
   pivot_longer(cols = a:f, names_to = "cols", values_to = "how", values_drop_na = TRUE) %>% 
-  select(!cols) %>%
-  mutate(responses = 1) %>% 
-  group_by(Swap, how) %>% 
-  summarise(total_responses = sum(responses)) -> how
+  select(!cols) -> how
 
-# Why does it matter?
+how_values <- how %>% 
+  ungroup() %>%
+  select(how) %>% 
+  distinct() %>% 
+  nest() %>% 
+  cbind(how %>% select(School, Date) %>% distinct()) %>% 
+  unnest(data)
+
+how_values %>% 
+  left_join(how) %>% 
+  mutate(response = ifelse(is.na(Swap), 0, 1)) %>% 
+  select(Date, School, how, response) %>% 
+  group_by(Date, School) %>% 
+  nest() %>% 
+  left_join(how %>% select(Date, School, Swap) %>% distinct()) %>% 
+  unnest(data) -> how 
+
+how %>% 
+  group_by(how, Swap) %>%
+  summarise(response = sum(response)) %>% 
+  group_by(Swap) %>%
+  mutate(total_responses = sum(response),
+         percent = (response/total_responses)*100) %>%
+  ggplot() +
+  geom_col(aes(y = reorder(how, percent), x = percent, fill = Swap), position = "dodge") +
+  ggtitle("How do we know?") + xlab("Percent response") +
+  scale_fill_gmri() +
+  xlim(c(0,100)) +
+ theme_gmri(axis.text = element_text(family = "Avenir", size = 70),
+             axis.title.y = element_blank(),
+             axis.title.x = element_text(family = "Avenir heavy", size = 75),
+             plot.title = element_text(family = "Avenir heavy", size = 75),
+             legend.position = "top",
+             legend.title = element_text(family = "Avenir", size = 70),
+             legend.text = element_text(family = "Avenir", size = 70),
+             legend.key.spacing = unit(1, "cm"))
+
+# Why is this important? 
 swap %>% 
   select("School", "Date", "Swap", "why") %>% 
   separate(why, c("a","b", "c", "d", "e", "f"), sep = ", ") %>%
   pivot_longer(cols = a:f, names_to = "cols", values_to = "why", values_drop_na = TRUE) %>% 
-  select(!cols) %>%
-  mutate(responses = 1) %>% 
-  group_by(Swap, why) %>% 
-  summarise(total_responses = sum(responses))-> why
+  select(!cols) -> why
 
+why_values <- why %>% 
+  ungroup() %>%
+  select(why) %>% 
+  distinct() %>% 
+  nest() %>% 
+  cbind(why %>% select(School, Date) %>% distinct()) %>% 
+  unnest(data)
+
+why_values %>% 
+  left_join(why) %>% 
+  mutate(response = ifelse(is.na(Swap), 0, 1)) %>% 
+  select(Date, School, why, response) %>% 
+  group_by(Date, School) %>% 
+  nest() %>% 
+  left_join(why %>% select(Date, School, Swap) %>% distinct()) %>% 
+  unnest(data) -> why 
+
+why %>% 
+  group_by(why, Swap) %>%
+  summarise(response = sum(response)) %>% 
+  group_by(Swap) %>%
+  mutate(total_responses = sum(response),
+         percent = (response/total_responses)*100) %>%
+  ggplot() +
+  geom_col(aes(y = reorder(why, percent), x = percent, fill = Swap), position = "dodge") +
+  ggtitle("Why is this important?") + xlab("Percent response") +
+  scale_fill_gmri() +
+  xlim(c(0,100)) +
+  theme_gmri(axis.text = element_text(family = "Avenir", size = 70),
+             axis.title.y = element_blank(),
+             axis.title.x = element_text(family = "Avenir heavy", size = 75),
+             plot.title = element_text(family = "Avenir heavy", size = 75),
+             legend.position = "top",
+             legend.title = element_text(family = "Avenir", size = 70),
+             legend.text = element_text(family = "Avenir", size = 70),
+             legend.key.spacing = unit(1, "cm"))
 
 ```
 
-My next step is to assess if there are any differences in the multichoice responses, though my inital thoughts are that these will follow the same pattern as the clicker questions. 
+I'm not entirely sure what statistical test to do here with such a small sample size. However, I suspect that the differences in responses is not impacted by the order of activities. 
+
+## General conclusions
+Based on the descriptive data of the normal visits and the stats run on the swap data, it seems unlikely that the order of activities does not impact engagement. However, this is not necessarily a bad thing! There is a clear pattern of understanding between what is happening in the Gulf of Maine, how we know that it's happening, and why it's important. The fact that these conclusions can still be drawn regardless of activity order *is* significant. *Statistics is all about interpretation* 
+
+ > You may remember from stats courses the concept of the *null* and *alternate* hypothesis. The null assumes no relationship between the variables. The 0.05 alpha is what we chose as our significant value. The Welch's t-test for all the different variables yielding p-values larger than the alpha accepts this null hypothesis.  
+ 
+There are other types of analyses we could run on this info (if we had more time). One thought is to do an adjacency analysis to see which responses to the *what is happening in the Gulf of Maine* questions are connected to which *how* and *why* responses. But I think in the interest of time prior to the conference, we'll need to stick to these descriptive stats. 
